@@ -10,10 +10,15 @@ import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSource
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.cglib.proxy.InvocationHandler;
+import org.springframework.cglib.proxy.MethodInterceptor;
+import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.servlet.Filter;
+
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,12 +31,16 @@ import java.util.Map;
  * @Time 16:56
  */
 @Configuration
-public class ShiroConfig {
+public class ShiroConfig implements MethodInterceptor  {
     /**
      * 先走 filter ，然后 filter 如果检测到请求头存在 token，则用 token 去 login，走 Realm 去验证
      */
     @Bean
     public ShiroFilterFactoryBean factory(SecurityManager securityManager) {
+    	
+    	//ShiroConfig clib = new ShiroConfig();
+    	
+    	
         ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
 
         // 添加自己的过滤器并且取名为jwt
@@ -64,6 +73,7 @@ public class ShiroConfig {
          * 关闭shiro自带的session，详情见文档
          * http://shiro.apache.org/session-management.html#SessionManagement-StatelessApplications%28Sessionless%29
          */
+       // securityManager.subjectDAO.sessionStorageEvaluator.sessionStorageEnabled = false;
         DefaultSubjectDAO subjectDAO = new DefaultSubjectDAO();
         DefaultSessionStorageEvaluator defaultSessionStorageEvaluator = new DefaultSessionStorageEvaluator();
         defaultSessionStorageEvaluator.setSessionStorageEnabled(false);
@@ -95,4 +105,19 @@ public class ShiroConfig {
     public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
         return new LifecycleBeanPostProcessor();
     }
+
+//	@Override
+//	public Object invoke(Object arg0, Method arg1, Object[] arg2) throws Throwable {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+
+	@Override
+	public Object intercept(Object obj, Method a, Object[] args, MethodProxy proxy) throws Throwable {
+		// TODO Auto-generated method stub
+		  System.out.println("预处理——————");
+	        proxy.invokeSuper(obj, args); //调用业务类（父类中）的方法
+	        System.out.println("调用后操作——————");
+	        return null; 
+	}
 }
