@@ -26,7 +26,8 @@ public class ShiroApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ShiroApplication.class, args);
-		CloseableHttpClient httpclient = HttpClients.createDefault();
+		CloseableHttpClient httpclient = HttpClients.createDefault(); 
+		
 	}
 
 public static String doGet(String url, Map<String, String> param) {
